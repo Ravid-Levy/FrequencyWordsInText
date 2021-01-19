@@ -144,7 +144,7 @@ while (scanf("%ms", &s) != EOF)
 	}
 		}
 		insert(head,s);
-		s="";
+		free(s);
 	}
 	char at[0];
 	if (argc > 1)

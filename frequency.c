@@ -43,22 +43,18 @@ int haveChildren(struct Trie *curr)
 	return 0;
 }
 
-void printTrie(struct Trie *curr, char *pos, int size, struct Trie *freecurr)
+void printTrie(struct Trie *curr, char *pos, int size)
 {
 	if (curr->EndWord)
 	{
 		char *word = calloc(size + 1, sizeof(char));
 		memcpy(word, pos, size);
 		*(word + size) = '\0';
-		if (freecurr != NULL)
-		{
-			free(freecurr);
-		}
 		if (word)
 		{
 			printf("%s %d\n", word, curr->wordcount);
-			free(word);
 		}
+		free(word);
 	}
 	if (haveChildren(curr))
 	{
@@ -69,24 +65,28 @@ void printTrie(struct Trie *curr, char *pos, int size, struct Trie *freecurr)
 				char *word = calloc(size + 1, sizeof(char));
 				memcpy(word, pos, size);
 				*(word + size) = 'a' + i;
-				printTrie(curr->character[i], word, size + 1, curr->character[i - 1]);
+				printTrie(curr->character[i], word, size + 1);
+				free(word);
 			}
 		}
 	}
 	return;
 }
-
-void printTrieR(struct Trie *curr, char *pos, int size, struct Trie *freecurr)
+void freeTrie(struct Trie *curr){
+for(int i = 0; i <Letters; i++){
+if(curr->character[i]){
+freeTrie(curr->character[i]);
+}
+}
+free(curr);
+}
+void printTrieR(struct Trie *curr, char *pos, int size)
 {
 	if (curr->EndWord)
 	{
 		char *word = calloc(size + 1, sizeof(char));
 		memcpy(word, pos, size);
 		*(word + size) = '\0';
-		if (freecurr != NULL)
-		{
-			free(freecurr);
-		}
 		if (word)
 		{
 			printf("%s %d\n", word, curr->wordcount);
@@ -102,7 +102,8 @@ void printTrieR(struct Trie *curr, char *pos, int size, struct Trie *freecurr)
 				char *word = calloc(size + 1, sizeof(char));
 				memcpy(word, pos, size);
 				*(word + size) = 'a' + i;
-				printTrieR(curr->character[i], word, size + 1, curr->character[i + 1]);
+				printTrieR(curr->character[i], word, size + 1);
+				free(word);
 			}
 		}
 	}
@@ -132,8 +133,7 @@ struct Trie *head = getNewTrieNode();
 char *s;
 while (scanf("%ms", &s) != EOF)
 	{
-		for(int i=0;i<strlen(s);i++)
-		{
+	for(int i=0;i<strlen(s);i++){
     if ((s[i] >= 'a' && s[i] <= 'z') || (s[i] >= 'A' &&s[i] <= 'Z'))
 	{
 		s[i] = tolower(s[i]);
@@ -142,22 +142,21 @@ while (scanf("%ms", &s) != EOF)
 	{
 		    RemoveChars(s, s[i]);
 	}
-		}
+	}
 		insert(head,s);
 		free(s);
-	}
+		s="";
+}
 	char at[0];
 	if (argc > 1)
 	{
-		printTrieR(head, at, sizeof(at), NULL);
-		free(head);
-		free(s);
+		printTrieR(head, at, sizeof(at));
 	}
 	else
 	{
-		printTrie(head, at, sizeof(at), NULL);
-		free(head);
-		free(s);
+		printTrie(head, at, sizeof(at));
 	}
+	freeTrie(head);
+	free(s);
 	return 0;
 }
